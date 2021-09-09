@@ -4,23 +4,20 @@ using UnityEngine;
 
 public class Bullet : MonoBehaviour
 {
-    /// <summary>
-    /// Нос корабля
-    /// </summary>
-    public Transform nose_ship;
+   /// <summary>
+   /// Скорость пули
+   /// </summary>
+   public float speed;
+   private Rigidbody2D _rb;
+   private bool flag = true;
 
-    /// <summary>
-    /// Позиция корабля
-    /// </summary>
-    public Transform ship;
+   private void Awake()
+   {
+      _rb = GetComponent<Rigidbody2D>();
+   }
 
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-
-        }
-
-    }
-
+   public void StartForse(Vector2 dir)
+   {
+      _rb.AddForce(dir * this.speed, ForceMode2D.Impulse);
+   }
 }

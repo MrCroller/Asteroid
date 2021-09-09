@@ -13,6 +13,7 @@ public class Player_Controller : MonoBehaviour
    /// </summary>
    [Range(1, 10)] public float speed_rotate = 3.6f;
    private Rigidbody2D _rb;
+   private SpriteRenderer _fireSprite;
    /// <summary>
    /// Вектор направления движения
    /// </summary>
@@ -27,16 +28,14 @@ public class Player_Controller : MonoBehaviour
    /// </summary>
    public GameObject bullet;
    /// <summary>
-   /// Родительский объект для пуль
+   /// Родительский объект для PM
    /// </summary>
-   public Transform bulletFather;
 
    private void Awake()
    {
       _rb = GetComponent<Rigidbody2D>();
       _nose = GameObject.Find("Nose").GetComponent<Transform>();
-
-      PoolManager.Init(bulletFather);
+      _fireSprite = GameObject.Find("Fire").GetComponent<SpriteRenderer>();
    }
 
    void Update()
@@ -52,7 +51,11 @@ public class Player_Controller : MonoBehaviour
       _moveVector = _nose.position - transform.position;
 
       if (Input.GetKeyDown(KeyCode.W))
-         _rb.AddForce(_moveVector * speed, ForceMode2D.Impulse);
+      {
+         _rb.AddForce(_moveVector * this.speed, ForceMode2D.Impulse);
+         StopCoroutine(nameof(AnimFire));
+         StartCoroutine(nameof(AnimFire));
+      }
       // Ускорение в направлении вектора
 
       if (Input.GetKey(KeyCode.A))
@@ -65,14 +68,24 @@ public class Player_Controller : MonoBehaviour
       {
          Fire();
       }
+   }
 
+   private IEnumerator AnimFire()
+   {
+      for (int i = 0; i < 5; i++)
+      {
+         _fireSprite.enabled = true;
+         yield return new WaitForSeconds(0.01f);
+         _fireSprite.enabled = false;
+      }
+      yield return new WaitForSeconds(0.1f);
+      _fireSprite.enabled = true;
+      yield return new WaitForSeconds(0.5f);
+      _fireSprite.enabled = false;
    }
 
    private void Fire()
    {
-      // var bul = PoolManager.GetGameObjectFromPool(bullet).transform;
-      var bul = GameObject.Instantiate(bullet).transform;
-      bul = _nose;
-      bul.position *= 8f;
+      PoolManager.GetGameObjectFromPool(bullet, _nose).GetComponent<Bullet>().StartForse(_moveVector);
    }
 }
