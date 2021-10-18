@@ -11,7 +11,6 @@ public class Area_Zone : MonoBehaviour
          Debug.Log($"ExitRegion | Object name: [{other.name}]");
          other.transform.position = new Vector2(-other.transform.position.x, -other.transform.position.y);
          // other.transform.position = new Vector2(GetPosition(other.transform.position.x), GetPosition(other.transform.position.y));
-         // TODO Улучшить появление с противолположной стороны
       }
       else
       {

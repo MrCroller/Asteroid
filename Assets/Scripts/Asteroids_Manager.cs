@@ -3,11 +3,6 @@ using UnityEngine;
 public class Asteroids_Manager : MonoBehaviour
 {
    public GameObject asteroidPrefab;
-
-   /// <summary>
-   /// Частота появления астероидов
-   /// </summary>
-   public float spawnRate = 2f;
    public float trajectoryVariance = 15f;
 
    /// <summary>
@@ -18,11 +13,13 @@ public class Asteroids_Manager : MonoBehaviour
    /// <summary>
    /// Кол-во астероидов
    /// </summary>
-   public int _astCount = 2;
+   public int astCount = 2;
+   private int _astSmallCount;
 
    void Start()
    {
       Spawn();
+      Asteroid.singelton.destroySmallAst += AstDestroy;
    }
 
    /// <summary>
@@ -30,9 +27,10 @@ public class Asteroids_Manager : MonoBehaviour
    /// </summary>
    private void Spawn()
    {
-      for (int i = 0; i < _astCount; i++)
+      _astSmallCount = astCount * 4;
+      for (int i = 0; i < astCount; i++)
       {
-
+         //TODO Задать для медленных астероидов дистанцию появления ближе
          Vector3 spawnDirection = Random.insideUnitCircle.normalized * spawnDistance;
          Vector3 spawnPoint = this.transform.position + spawnDirection;
 
@@ -43,6 +41,13 @@ public class Asteroids_Manager : MonoBehaviour
          Asteroid asteroid = PoolManager.GetGameObjectFromPool(asteroidPrefab, spawnPoint, rotation).GetComponent<Asteroid>();
          asteroid.SetTrajectory(rotation * -spawnDirection);
       }
-      _astCount++;
+      astCount++;
+   }
+
+   public void AstDestroy()
+   {
+      Debug.Log($"astSmallCount = {_astSmallCount}");
+      _astSmallCount--;
+      if (_astSmallCount <= 0) Spawn();
    }
 }

@@ -75,7 +75,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 6
-  m_Sprite: {fileID: 21300000, guid: 98d384999d934504db2916f2b4c3983c, type: 3}
+  m_Sprite: {fileID: 21300000, guid: ebfe198dc7de1b84cb13cf853d114584, type: 3}
   m_Color: {r: 0.674, g: 0.674, b: 0.674, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -120,7 +120,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.09627938, y: -0.084245086}
+  m_Offset: {x: 0.043929458, y: -0.08781254}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -131,7 +131,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 2, y: 2}
+  m_Size: {x: 2.287935, y: 2.3627765}
   m_EdgeRadius: 0
 --- !u!114 &7767843042956238079
 MonoBehaviour:
@@ -145,11 +145,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01880d93c36756c46b0827e91ff2304b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _size: 8
   asteroidPrefab: {fileID: 7148626997675068716}
-  minSpeed: 1.39
-  maxSpeed: 16.8
+  minSpeed: 3
+  maxSpeed: 7.3
   speed: 1
-  attech: 10
+  attech: 7.15
   sprites:
   - {fileID: 21300000, guid: 98d384999d934504db2916f2b4c3983c, type: 3}
   - {fileID: 21300000, guid: f018d6c95df34f443a0b90515ad785b2, type: 3}

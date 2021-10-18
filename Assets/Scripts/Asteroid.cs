@@ -1,17 +1,25 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class Asteroid : MonoBehaviour
 {
-   enum Size
+   public enum Size
    {
       SMALL = 1,
       MEDIUM = 4,
       BIG = 8
    }
-   [SerializeField] private Size _size = Size.BIG;
+   public Size _size = Size.BIG;
+
+   public delegate void SomeAction();
+
+   /// <summary>
+   /// Событие разрушения маленького астероида
+   /// </summary>
+   public event SomeAction destroySmallAst;
    public GameObject asteroidPrefab;
+
+   public static Asteroid singelton { get; private set; }
 
    /// <summary>
    /// Минимальная скорость
@@ -42,6 +50,8 @@ public class Asteroid : MonoBehaviour
 
    private void Awake()
    {
+      singelton = this;
+
       _rb = GetComponent<Rigidbody2D>();
       _spriteRender = GetComponent<SpriteRenderer>();
    }
@@ -50,11 +60,16 @@ public class Asteroid : MonoBehaviour
    {
       // Выбор случайного спрайта
       _spriteRender.sprite = sprites[Random.Range(0, sprites.Length)];
-      this.transform.eulerAngles = new Vector3(0f, 0f, Random.value * 360);
 
       // Выбор цвета в градациях серого
       float color_value = Random.Range(0.1f, 0.9f);
       _spriteRender.color = new Color(color_value, color_value, color_value);
+
+      this.transform.eulerAngles = new Vector3(0f, 0f, Random.value * 360);
+      // Настрйка видимого размера астероида
+      this.transform.localScale = Vector3.one * (int)_size / attech;
+
+      _rb.mass = (int)_size;
    }
 
    /// <summary>
@@ -63,64 +78,53 @@ public class Asteroid : MonoBehaviour
    /// <param name="direction"></param>
    public void SetTrajectory(Vector2 direction)
    {
-      // Изменение размера
-      _rb.mass = (int)_size;
-      this.transform.localScale = (Vector3.one * (int)_size) / attech;
-
       if (minSpeed > maxSpeed) Debug.LogError("Минимальное значение скорости больше максимального");
+
       speed = Random.Range(minSpeed, maxSpeed);
       _rb.AddForce(direction * speed);
    }
 
-
-   private void OnTriggerEnter2D(Collider2D other)
+   private void OnCollisionEnter2D(Collision2D other)
    {
-      if (other.CompareTag("Bullet"))
+      if (other.gameObject.tag == "Bullet")
       {
+         if (_size != Size.SMALL)
+         {
+            CreateSplit();
+            CreateSplit();
+         }
          PoolManager.PutGameobjectToPool(other.gameObject);
-         Destroy();
+         PoolManager.PutGameobjectToPool(this.gameObject);
+         Debug.Log("Exploution!");
       }
    }
 
    /// <summary>
    /// Уничтожение астероида
    /// </summary>
-   private void Destroy()
+   private void CreateSplit()
    {
-      if (_size != Size.SMALL)
-      {
-         for (int i = 0; i < 2; i++)
-         {
-            Vector3 newDirection = this.transform.position;
-            Quaternion rndRot = Quaternion.AngleAxis(Random.Range(-45f, 45f), Vector3.forward);
-            Asteroid ast = PoolManager.GetGameObjectFromPool(asteroidPrefab, this.transform.position, rndRot).GetComponent<Asteroid>();
-            Debug.Log("Create");
+      // Нпбольшое смещение при появлении
+      Vector2 position = this.transform.position;
+      position += Random.insideUnitCircle * 0.5f;
 
-            // ast._size--; //Уменьшение размера на 1
-            SetParam(ref ast._size, ref ast.speed); //FIXME после Destroy() BIG Size появляющиеся астероиды разных размеров (MEDIUM и SMALL)
-            ast.SetTrajectory(rndRot * -newDirection);
-         }
-      }
-      PoolManager.PutGameobjectToPool(this.gameObject);
-      Debug.Log("Exploution!");
+      Vector3 newDirection = this.transform.position;
+      Quaternion rndRot = Quaternion.AngleAxis(Random.Range(-45f, 45f), Vector3.forward);
+      //FIXME Исправить поворот в сторону трeктории падения
+
+      Asteroid ast = PoolManager.GetGameObjectFromPool(asteroidPrefab, position, rndRot).GetComponent<Asteroid>();
+      // TODO Установить адекватное разделение размера астероида согласно его категории
+      ast._size = SizeDecrease();
+      // ast.speed = this.speed * 2;
+      Debug.Log($"Create! ast size = {ast._size.ToString()}");
+      ast.SetTrajectory((rndRot * -newDirection) * this.speed);
    }
 
-   /// <summary>
-   /// Изменение размера и траектории
-   /// </summary>
-   /// <param name="size">Размер объекта</param>
-   /// <param name="speed">Скорость объекта</param>
-   private void SetParam(ref Size size, ref float speed)
+   private Size SizeDecrease()
    {
-      if (size == Size.BIG)
-      {
-         size = Size.MEDIUM;
-         speed *= 2;
-      }
-      else if (size == Size.MEDIUM)
-      {
-         size = Size.SMALL;
-         speed *= 2;
-      }
+      if (_size == Size.BIG)
+         return Size.MEDIUM;
+      else
+         return Size.SMALL;
    }
 }
